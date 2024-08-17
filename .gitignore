@@ -1,41 +1,38 @@
-lib-cov
-*.seed
+# Node.js modules
+node_modules/
+
+# Build output
+dist/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Logs
+logs/
 *.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-*.swp
+npm-debug.log*
 
-pids
-logs
-results
-tmp
-
-# Build
-public/css/main.css
-
-# Coverage reports
-coverage
-
-# API keys and secrets
+# Environment variables
 .env
 
-# Dependency directory
-node_modules
-bower_components
+# Coverage reports
+coverage/
 
-# Editors
-.idea
-*.iml
-
-# OS metadata
+# System files
 .DS_Store
 Thumbs.db
 
-# Ignore built ts files
-dist/**/*
+# IDE/editor settings
+.vscode/
+.idea/
 
-# ignore yarn.lock
+# npm
+package-lock.json
 yarn.lock
+
+# Local npm cache
+.npm/
+
+# Temporary files
+tmp/
+temp/
