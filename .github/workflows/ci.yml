@@ -1,47 +1,86 @@
-name: CI
+name: Node.js Package Workflow
 
 on:
   push:
     branches:
-      - master
+      - master # Default branch
   pull_request:
     branches:
-      - master
+      - '*' # Handles pull requests to any branch
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: write
+      issues: write
+      pull-requests: write
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Set the Node.js version
+          node-version: 20
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org/'
 
-      - name: Install dependencies
-        run: npm install
-      
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Build project
-        run: npm run build  # Ensure TypeScript files are compiled
+        run: npm run build
 
-      - name: Lint code
-        run: npm run lint
+      - name: Run linter and formatter
+        run: npm run lint && npm run format
 
-      - name: Format code
-        run: npm run format
+      - name: Run audit
+        run: npm audit --omit=dev
 
-      - name: Run tests
-        run: npm test
+      - name: Run Tests
+        run: npm test -- --coverage --json --outputFile="report.json"
 
-      - name: Generate test coverage report
-        run: npm run test -- --coverage
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          skip-step: all
+          coverage-file: report.json
+          base-coverage-file: report.json
+          output: comment, report-markdown
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+
+    if: github.ref == 'refs/heads/master' # Only run this job for the master branch
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important: for full git history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup .npmrc
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Publish to npm
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npm publish
+        run: npm publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
