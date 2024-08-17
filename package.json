@@ -1,17 +1,28 @@
 {
-  "name": "speedtest",
+  "name": "speedscan",
   "version": "1.0.0",
-  "description": "",
+  "description": "A TypeScript-powered CLI tool for checking internet speed using the speedtest-net package.",
   "main": "index.js",
+  "bin": {
+    "speedscan": "dist/cli/index.js"
+  },
   "scripts": {
-    "test": "npx jest"
+    "build": "tsc",
+    "start": "node dist/cli/index.js",
+    "test": "npx jest",
+    "lint": "npx eslint src/**/*.ts",
+    "format": "npx prettier --write src/**/*.ts",
+    "dev": "npm run build & npm run start"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.3.0",
+    "@types/speedtest-net": "^2.1.5",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
     "eslint": "^9.9.0",
@@ -21,5 +32,9 @@
     "prettier": "^3.3.3",
     "ts-jest": "^29.2.4",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "speedtest-net": "^2.2.0",
+    "yargs": "^17.7.2"
   }
 }
